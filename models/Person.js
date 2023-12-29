@@ -9,7 +9,17 @@ const personSchema = new mongoose.Schema({
         minLength: [3, "Name must have at least 3 characters"],
         required: [true, "Name is required"]
     },
-    number: String,
+    number: {
+        type: String,
+        minLength: [8, "Number must have at least 8 characters"],
+        validate: {
+            validator: function (v) {
+                return /\d{2,3}-\d+/.test(v);
+            },
+            message: props => `${props.value} is not a valid number. A valid number must be formed of two parts that are separated by -, the first part has two or three numbers and the second part also consists of numbers`
+        },
+        required: [true, "Number is required"]
+    },
 })
 personSchema.set("toJSON", {
     transform: (document, returnedObject) => {
