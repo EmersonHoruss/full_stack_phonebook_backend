@@ -77,9 +77,13 @@ app.post('/api/persons', (request, response) => {
             error: 'number must be unique'
         })
     }
-    person.id = Math.floor(Math.random() * 100000)
-    persons = persons.concat(person)
-    response.json(person)
+    const personToSave = new Person({
+        name: person.name,
+        number: person.number
+    })
+    personToSave.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
 app.get("/info", (request, response) => {
     response.send(`
