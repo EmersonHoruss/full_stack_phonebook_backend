@@ -4,7 +4,11 @@ const url = process.env.MONGODB_URI
 mongoose.set('strictQuery', false)
 mongoose.connect(url)
 const personSchema = new mongoose.Schema({
-    name: String,
+    name: {
+        type: String,
+        minLength: [3, "Name must have at least 3 characters"],
+        required: [true, "Name is required"]
+    },
     number: String,
 })
 personSchema.set("toJSON", {
