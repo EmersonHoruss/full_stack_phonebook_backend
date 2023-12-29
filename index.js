@@ -66,7 +66,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
         })
         .catch(error => next(error))
 })
-app.post('/api/persons', (request, response, next) => {
+app.post('/api/persons', async (request, response, next) => {
     const person = request.body
     if (!person.name) {
         return response.status(400).json({
@@ -78,12 +78,28 @@ app.post('/api/persons', (request, response, next) => {
             error: 'number missing'
         })
     }
-    const numberAlreadyExist = persons.find(currentPerson => currentPerson.number === person.number)
-    if (numberAlreadyExist) {
-        return response.status(400).json({
-            error: 'number must be unique'
+    await Person
+        .find({ number: person.number })
+        .then(persons => {
+            const numberAlreadyExist = persons.length
+            if (numberAlreadyExist) {
+                return response.status(400).json({
+                    error: 'number must be unique'
+                })
+            }
         })
-    }
+        .catch(error => next(error))
+    await Person
+        .find({ number: person.number })
+        .then(persons => {
+            const numberAlreadyExist = persons.length
+            if (numberAlreadyExist) {
+                return response.status(400).json({
+                    error: 'number must be unique'
+                })
+            }
+        })
+        .catch(error => next(error))
     const personToSave = new Person({
         name: person.name,
         number: person.number
@@ -92,6 +108,19 @@ app.post('/api/persons', (request, response, next) => {
         .save()
         .then(savedPerson => {
             response.json(savedPerson)
+        })
+        .catch(error => next(error))
+})
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+    const id = request.params.id
+    const person = {
+        name: body.name,
+        number: body.number,
+    }
+    Person.findByIdAndUpdate(id, person, { new: true })
+        .then(updatedPerson => {
+            response.json(updatedPerson)
         })
         .catch(error => next(error))
 })
